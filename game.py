@@ -4,6 +4,7 @@ import sys
 
 from snake import Snake
 from fruit import Fruit
+from score import Score
 from constants import CELL_SIZE, CELL_NUMBER, FPS
 
 SCREEN_UPDATE = pg.USEREVENT
@@ -13,11 +14,15 @@ class Game:
     def __init__(self):
         pg.init()
 
+        self.font = pg.font.Font('Fonts/supermario.otf', 30)
+        self.crunch_sound = pg.mixer.Sound('Sounds/crunch.wav')
+
         self.screen = pg.display.set_mode((CELL_NUMBER * CELL_SIZE, CELL_NUMBER * CELL_SIZE))
         self.clock = pg.time.Clock()
 
         self.snake = Snake(self.screen, pg.Vector2(5, 5))
         self.fruit = Fruit(self.screen, self.get_random_pos())
+        self.score = Score(self.screen, self.font, pg.Vector2(CELL_NUMBER // 2 - 2, 0))
 
         pg.time.set_timer(SCREEN_UPDATE, 125)
 
@@ -43,6 +48,8 @@ class Game:
         if self.fruit.pos == self.snake.body[0]:
             self.fruit = Fruit(self.screen, self.get_random_pos())
             self.snake.add_block()
+            self.score.add()
+            self.crunch_sound.play()
 
     def check_fail(self):
         if not 0 <= self.snake.body[0].x < CELL_NUMBER or not 0 <= self.snake.body[0].y < CELL_NUMBER:
@@ -78,6 +85,7 @@ class Game:
         self.screen.fill((175, 215, 70))
         self.snake.draw()
         self.fruit.draw()
+        self.score.draw()
 
     def run(self):
         while True:
